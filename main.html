@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codeforces Profile Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #1a1a2e; /* Dark background */
+            --card-color: #2c2c44; /* Slightly lighter card background */
+            --text-color: #e0e0e0; /* Light text */
+            --accent-color: #00bcd4; /* Cyan/Teal accent */
+            --secondary-accent: #f73859; /* Red/Pink accent for buttons */
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --border-radius: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- MODERN HEADER DESIGN --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: rgba(44, 44, 68, 0.85); /* Glassmorphism opacity */
+            backdrop-filter: blur(12px); /* Glassmorphism blur */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        /* 1. Logo / Brand */
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        /* 2. Centered Search Bar */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            flex-grow: 1;
+            max-width: 500px;
+            margin: 0 30px;
+        }
+
+        #handleInput {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #444;
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--text-color);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        #handleInput:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background-color: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 10px rgba(0, 188, 212, 0.2);
+        }
+
+        #searchButton {
+            padding: 0 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+            font-size: 1.2rem;
+        }
+
+        #searchButton:hover {
+            background-color: #008c9e;
+            transform: scale(1.05);
+        }
+
+        /* 3. Navigation Actions */
+        .nav-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link-btn {
+            text-decoration: none;
+            padding: 8px 20px;
+            border: 2px solid var(--accent-color);
+            border-radius: var(--border-radius);
+            color: var(--accent-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .nav-link-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px rgba(0, 188, 212, 0.4);
+        }
+
+        /* --- Main Layout --- */
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            gap: 20px;
+            grid-template-columns: 1fr;
+            padding: 0 20px;
+            flex: 1; /* Pushes footer down */
+        }
+
+        .profile-card, .details-card, .submissions-card {
+            background-color: var(--card-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h3 {
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+
+        /* --- Summary Section --- */
+        .summary-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-right: 20px;
+            border: 3px solid var(--accent-color);
+            object-fit: cover;
+            background-color: #1a1a2e;
+        }
+
+        .user-info h2 {
+            font-size: 2em;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+
+        .rank-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: var(--secondary-accent); 
+            color: white;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: capitalize;
+        }
+        
+        /* Rank Colors */
+        .rank-newbie { background-color: #ccc; color: black; }
+        .rank-pupil { background-color: #4CAF50; color: white; }
+        .rank-specialist { background-color: #03a89e; color: white; }
+        .rank-expert { background-color: #2196F3; color: white; }
+        .rank-candidatemaster { background-color: #9C27B0; color: white; }
+        .rank-master { background-color: #FFC107; color: #333; }
+        .rank-internationalmaster { background-color: #FF9800; color: white; }
+        .rank-grandmaster, .rank-internationalgrandmaster, .rank-legendarygrandmaster { background-color: #F44336; color: white; }
+
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            border-top: 1px solid #444;
+            padding-top: 20px;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.9em;
+            color: #b0b0b0;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .max-rating { color: #fce38a; }
+
+        /* --- Details Grid --- */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .details-grid strong { color: var(--accent-color); }
+
+        /* --- Submissions Table --- */
+        #submissionsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        #submissionsTable th, #submissionsTable td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        #submissionsTable th {
+            background-color: rgba(0,0,0,0.2);
+            color: var(--accent-color);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        #submissionsTable tbody tr:hover {
+            background-color: #3d3d5f;
+        }
+
+        /* Verdicts */
+        .verdict-OK { color: #4CAF50; font-weight: 700; }
+        .verdict-WRONG_ANSWER { color: #F44336; font-weight: 600; }
+        .verdict-TIME_LIMIT_EXCEEDED { color: #ff9800; font-weight: 600; }
+        .verdict-COMPILATION_ERROR { color: #9c27b0; font-weight: 600; }
+        .verdict-RUNTIME_ERROR { color: #e91e63; font-weight: 600; }
+
+        /* Buttons */
+        .submission-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        #detailedSubmissionsBtn { background-color: var(--secondary-accent); color: white; }
+        #detailedSubmissionsBtn:hover { background-color: #d12e4b; transform: translateY(-2px); }
+
+        #trackRatingBtn { background-color: #6a1b9a; color: white; }
+        #trackRatingBtn:hover { background-color: #531579; transform: translateY(-2px); }
+        
+        .action-button:disabled {
+            background-color: #444 !important;
+            cursor: not-allowed;
+            color: #999;
+            transform: none !important;
+        }
+
+        /* --- Utility & Loading --- */
+        .hidden { display: none !important; }
+
+        #loading {
+            text-align: center;
+            padding: 40px;
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            color: var(--accent-color);
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: var(--accent-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #error {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.1em;
+            color: #ff6b6b;
+            background: rgba(255,0,0,0.1);
+            border: 1px solid #ff6b6b;
+            border-radius: var(--border-radius);
+            grid-column: 1 / -1;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 15px; padding: 20px; }
+            .search-container { width: 100%; margin: 0; }
+            .nav-actions { width: 100%; justify-content: center; }
+            #submissionsTable th:nth-child(4), /* Rating */
+            #submissionsTable td:nth-child(4),
+            #submissionsTable th:nth-child(6), /* Time */
+            #submissionsTable td:nth-child(6) {
+                display: none; /* Hide Rating and Time on very small screens */
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+            border-top: 1px solid #444;
+            color: #777;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <span>CF Explorer 🚀</span>
+        </div>
+    
+        <div class="search-container">
+            <input type="text" id="handleInput" placeholder="Enter Codeforces Handle (e.g. tourist)...">
+            <button id="searchButton" title="Search User">🔍</button>
+        </div>
+    
+        <nav class="nav-actions">
+            <a href="contest.html" class="nav-link-btn">
+                <span>View Contests</span> 🏆
+            </a>
+        </nav>
+    </header>
+
+    <main id="profileContainer">
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <span>Fetching Profile Data...</span>
+        </div>
+        
+        <div id="error" class="hidden"></div>
+
+        <section id="summarySection" class="profile-card hidden">
+            <div class="summary-header">
+                <img id="userAvatar" src="" alt="User Avatar" class="avatar">
+                <div class="user-info">
+                    <h2 id="summaryHandle"></h2>
+                    <p id="summaryRank" class="rank-tag"></p>
+                    <p style="margin-top: 5px;"><span id="summaryCountry"></span></p>
+                </div>
+            </div>
+            <div class="summary-stats">
+                <div>
+                    <span class="stat-label">Current Rating</span>
+                    <span id="currentRating" class="stat-value"></span>
+                </div>
+                <div>
+                    <span class="stat-label">Max Rating</span>
+                    <span id="maxRating" class="stat-value max-rating"></span>
+                </div>
+                <div>
+                    <span class="stat-label">Registered</span>
+                    <span id="registeredAt" class="stat-value"></span>
+                </div>
+            </div>
+        </section>
+
+        <section id="detailsSection" class="details-card hidden">
+            <h3>Detailed Information</h3>
+            <div class="details-grid">
+                <div><strong>First Name:</strong> <span id="detailFirstName"></span></div>
+                <div><strong>Last Name:</strong> <span id="detailLastName"></span></div>
+                <div><strong>Organization:</strong> <span id="detailOrganization"></span></div>
+                <div><strong>Contribution:</strong> <span id="detailContribution"></span></div>
+                <div><strong>Last Online:</strong> <span id="detailLastOnline"></span></div>
+                <div><strong>Friends:</strong> <span id="detailFriendCount"></span></div>
+            </div>
+        </section>
+
+        <section id="submissionsSection" class="submissions-card hidden">
+            <h3>Recent Submissions (Last 10)</h3>
+            <div style="overflow-x: auto;">
+                <table id="submissionsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Contest</th>
+                            <th>Problem</th>
+                            <th>Rating</th>
+                            <th>Verdict</th>
+                            <th>Time</th>
+                            <th>Lang</th>
+                        </tr>
+                    </thead>
+                    <tbody id="submissionsBody">
+                        </tbody>
+                </table>
+            </div>
+            
+            <div class="submission-actions">
+                <button id="detailedSubmissionsBtn" class="action-button" disabled>View Detailed Report 📊</button>
+                <button id="trackRatingBtn" class="action-button" disabled>Track Rating History 📈</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Codeforces API Explorer</p>
+    </footer>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const handleInput = document.getElementById('handleInput');
+    const searchButton = document.getElementById('searchButton');
+    const loading = document.getElementById('loading');
+    const errorDiv = document.getElementById('error');
+
+    const detailedSubmissionsBtn = document.getElementById('detailedSubmissionsBtn');
+    const trackRatingBtn = document.getElementById('trackRatingBtn');
+
+    // ✅ DEPLOYED BACKEND URL
+    const API_BASE_URL = 'https://cff-production.up.railway.app/api/v0.1/cf/user/';
+
+    let currentHandle = '';
+
+    /* -------------------- HELPERS -------------------- */
+
+    const setVisibility = (id, visible) => {
+        document.getElementById(id).classList.toggle('hidden', !visible);
+    };
+
+    const timeConverter = (unix, dateOnly = false) => {
+        if (!unix) return 'N/A';
+        const d = new Date(unix * 1000);
+        return d.toLocaleDateString("en-US", dateOnly
+            ? { year: 'numeric', month: 'short', day: 'numeric' }
+            : { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+        );
+    };
+
+    const saveHandle = (handle) => {
+        localStorage.setItem('lastCodeforcesHandle', handle);
+    };
+
+    const getHandleFromUrl = () => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('handle');
+    };
+
+    /* -------------------- CORE LOGIC -------------------- */
+
+    const loadInitialProfile = () => {
+        const urlHandle = getHandleFromUrl();
+
+        if (urlHandle) {
+            handleInput.value = urlHandle;
+            searchProfile(urlHandle);
+            return;
+        }
+
+        const savedHandle = localStorage.getItem('lastCodeforcesHandle');
+        if (savedHandle) {
+            handleInput.value = savedHandle;
+            searchProfile(savedHandle);
+        }
+    };
+
+    const searchProfile = async (initialHandle = null) => {
+        const handle = initialHandle || handleInput.value.trim();
+
+        if (!handle) {
+            alert('Please enter a Codeforces handle');
+            return;
+        }
+
+        currentHandle = handle;
+
+        // Reset UI
+        setVisibility('summarySection', false);
+        setVisibility('detailsSection', false);
+        setVisibility('submissionsSection', false);
+        setVisibility('error', false);
+        setVisibility('loading', true);
+
+        detailedSubmissionsBtn.disabled = true;
+        trackRatingBtn.disabled = true;
+
+        try {
+            // 1️⃣ SUMMARY
+            const summaryRes = await fetch(`${API_BASE_URL}${handle}/summary`);
+            if (!summaryRes.ok) throw new Error('User not found');
+
+            const summary = await summaryRes.json();
+            renderSummary(summary);
+
+            // 2️⃣ DETAILS
+            const detailsRes = await fetch(`${API_BASE_URL}${handle}`);
+            const details = await detailsRes.json();
+            renderDetails(details);
+
+            // 3️⃣ SUBMISSIONS
+            const subsRes = await fetch(`${API_BASE_URL}${handle}/submissions?count=10`);
+            const subs = await subsRes.json();
+            renderSubmissions(subs);
+
+            saveHandle(handle);
+
+            setVisibility('summarySection', true);
+            setVisibility('detailsSection', true);
+            setVisibility('submissionsSection', true);
+
+            detailedSubmissionsBtn.disabled = false;
+            trackRatingBtn.disabled = false;
+
+        } catch (err) {
+            errorDiv.textContent = `❌ ${err.message}`;
+            setVisibility('error', true);
+        } finally {
+            setVisibility('loading', false);
+        }
+    };
+
+    /* -------------------- RENDERERS -------------------- */
+
+    const renderSummary = (data) => {
+        document.getElementById('userAvatar').src = data.avatar || 'https://userpic.codeforces.org/no-avatar.jpg';
+        document.getElementById('summaryHandle').textContent = data.handle;
+
+        const rankTag = document.getElementById('summaryRank');
+        rankTag.className = 'rank-tag';
+
+        if (data.rank) {
+            rankTag.textContent = data.rank;
+            rankTag.classList.add(`rank-${data.rank.toLowerCase().replace(/\s/g, '')}`);
+        } else {
+            rankTag.textContent = 'Unrated';
+            rankTag.classList.add('rank-newbie');
+        }
+
+        document.getElementById('summaryCountry').textContent = data.country || 'Unknown';
+        document.getElementById('currentRating').textContent = data.currentRating ?? 'Unrated';
+        document.getElementById('maxRating').textContent = data.maxRating ?? 'N/A';
+        document.getElementById('registeredAt').textContent = timeConverter(data.registeredAt, true);
+    };
+
+    const renderDetails = (data) => {
+        document.getElementById('detailFirstName').textContent = data.firstName || '-';
+        document.getElementById('detailLastName').textContent = data.lastName || '-';
+        document.getElementById('detailOrganization').textContent = data.organization || '-';
+        document.getElementById('detailContribution').textContent = data.contribution || 0;
+        document.getElementById('detailFriendCount').textContent = data.friendOfCount || 0;
+        document.getElementById('detailLastOnline').textContent = timeConverter(data.lastOnlineTimeSeconds);
+    };
+
+    const renderSubmissions = (subs) => {
+        const tbody = document.getElementById('submissionsBody');
+        tbody.innerHTML = '';
+
+        if (!subs || subs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No submissions found</td></tr>';
+            return;
+        }
+
+        subs.forEach(s => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${s.id}</td>
+                <td>${s.contestId}</td>
+                <td>
+                    <a href="https://codeforces.com/contest/${s.contestId}/problem/${s.problem.index}"
+                       target="_blank"
+                       style="color: var(--accent-color);">
+                        ${s.problem.index}
+                    </a>
+                </td>
+                <td>${s.problem.rating || '-'}</td>
+                <td class="verdict-${s.verdict}">${s.verdict}</td>
+                <td>${timeConverter(s.creationTimeSeconds, true)}</td>
+                <td>${s.programmingLanguage.split('(')[0]}</td>
+            `;
+        });
+    };
+
+    /* -------------------- EVENTS -------------------- */
+
+    searchButton.addEventListener('click', () => searchProfile());
+    handleInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') searchProfile();
+    });
+
+    detailedSubmissionsBtn.addEventListener('click', () => {
+        window.location.href = `detailed-submissions.html?handle=${currentHandle}`;
+    });
+
+    trackRatingBtn.addEventListener('click', () => {
+        window.location.href = `rating-history.html?handle=${currentHandle}`;
+    });
+
+    // 🚀 START
+    loadInitialProfile();
+});
+</script>
+
+</body>
+</html>
