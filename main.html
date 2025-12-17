@@ -3,18 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codeforces Profile Viewer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Codeforces Profile Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #1a1a2e; /* Dark background */
-            --card-color: #2c2c44; /* Slightly lighter card background */
-            --text-color: #e0e0e0; /* Light text */
-            --accent-color: #00bcd4; /* Cyan/Teal accent */
-            --secondary-accent: #f73859; /* Red/Pink accent for buttons */
-            --shadow-color: rgba(0, 0, 0, 0.4);
-            --border-radius: 10px;
+            /* Palette - Deep Space Theme */
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7); /* Translucent */
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            
+            /* Accents */
+            --accent-primary: #38bdf8; /* Sky Blue */
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --accent-secondary: #f472b6; /* Pink */
+            
+            /* Rank Colors */
+            --rank-newbie: #9ca3af;
+            --rank-pupil: #4ade80;
+            --rank-specialist: #2dd4bf;
+            --rank-expert: #60a5fa;
+            --rank-cm: #c084fc;
+            --rank-master: #fbbf24;
+            --rank-gm: #f87171;
+            --rank-lgm: #ef4444;
+
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -24,341 +40,377 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
+            font-family: 'Outfit', sans-serif; /* Cleaner, more modern font than Poppins */
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(244, 114, 182, 0.1) 0%, transparent 40%);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* --- MODERN HEADER DESIGN --- */
+        /* --- HEADER --- */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
-            background-color: rgba(44, 44, 68, 0.85); /* Glassmorphism opacity */
-            backdrop-filter: blur(12px); /* Glassmorphism blur */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 40px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             position: sticky;
             top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            margin-bottom: 30px;
+            z-index: 100;
         }
 
-        /* 1. Logo / Brand */
         .brand {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--accent-color);
+            background: linear-gradient(135deg, var(--text-main), var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
             gap: 10px;
-            white-space: nowrap;
         }
 
-        /* 2. Centered Search Bar */
+        /* --- MODERN SEARCH BAR --- */
         .search-container {
             display: flex;
-            gap: 10px;
-            flex-grow: 1;
-            max-width: 500px;
-            margin: 0 30px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 5px 5px 5px 20px;
+            width: 100%;
+            max-width: 450px;
+            transition: var(--transition);
+        }
+
+        .search-container:focus-within {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px var(--accent-glow);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         #handleInput {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
             width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #444;
-            border-radius: var(--border-radius);
-            background-color: rgba(0, 0, 0, 0.2);
-            color: var(--text-color);
-            font-size: 15px;
-            transition: all 0.3s ease;
-        }
-
-        #handleInput:focus {
+            font-size: 0.95rem;
             outline: none;
-            border-color: var(--accent-color);
-            background-color: rgba(0, 0, 0, 0.4);
-            box-shadow: 0 0 10px rgba(0, 188, 212, 0.2);
         }
 
         #searchButton {
-            padding: 0 20px;
+            background: var(--accent-primary);
+            color: var(--bg-dark);
             border: none;
-            border-radius: var(--border-radius);
-            background-color: var(--accent-color);
-            color: var(--bg-color);
-            font-weight: 600;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             cursor: pointer;
-            transition: transform 0.2s, background-color 0.3s;
-            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: var(--transition);
         }
 
         #searchButton:hover {
-            background-color: #008c9e;
-            transform: scale(1.05);
+            transform: rotate(15deg) scale(1.1);
+            background: #fff;
         }
 
-        /* 3. Navigation Actions */
-        .nav-actions {
-            display: flex;
-            align-items: center;
-        }
-
-        .nav-link-btn {
+        .nav-actions .nav-link-btn {
             text-decoration: none;
-            padding: 8px 20px;
-            border: 2px solid var(--accent-color);
-            border-radius: var(--border-radius);
-            color: var(--accent-color);
+            color: var(--text-muted);
             font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: var(--transition);
+            border: 1px solid transparent;
         }
 
-        .nav-link-btn:hover {
-            background-color: var(--accent-color);
-            color: var(--bg-color);
-            box-shadow: 0 0 15px rgba(0, 188, 212, 0.4);
+        .nav-actions .nav-link-btn:hover {
+            color: var(--accent-primary);
+            background: rgba(56, 189, 248, 0.1);
+            border-color: rgba(56, 189, 248, 0.2);
         }
 
-        /* --- Main Layout --- */
+        /* --- MAIN LAYOUT --- */
         main {
-            max-width: 1000px;
-            margin: 0 auto;
-            width: 100%;
+            max-width: 1100px;
+            margin: 40px auto;
+            width: 90%;
             display: grid;
-            gap: 20px;
-            grid-template-columns: 1fr;
-            padding: 0 20px;
-            flex: 1; /* Pushes footer down */
+            gap: 25px;
+            flex: 1;
         }
 
-        .profile-card, .details-card, .submissions-card {
-            background-color: var(--card-color);
-            padding: 25px;
+        /* Card Base Style */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 15px var(--shadow-color);
-            animation: fadeIn 0.5s ease-in-out;
+            padding: 30px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         h3 {
-            margin-bottom: 15px;
-            color: var(--accent-color);
-            border-bottom: 1px solid #444;
-            padding-bottom: 5px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
         }
 
-        /* --- Summary Section --- */
-        .summary-header {
+        /* --- SUMMARY SECTION --- */
+        .summary-content {
             display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
             align-items: center;
-            margin-bottom: 20px;
+        }
+
+        .avatar-container {
+            position: relative;
         }
 
         .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-right: 20px;
-            border: 3px solid var(--accent-color);
+            width: 120px;
+            height: 120px;
+            border-radius: 24px; /* Squircle */
             object-fit: cover;
-            background-color: #1a1a2e;
+            border: 2px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
         }
 
-        .user-info h2 {
-            font-size: 2em;
-            margin-bottom: 5px;
-            color: var(--accent-color);
+        .user-meta {
+            flex: 1;
         }
 
-        .rank-tag {
-            display: inline-block;
-            padding: 5px 10px;
-            background-color: var(--secondary-accent); 
-            color: white;
-            border-radius: 5px;
-            font-weight: 600;
-            font-size: 0.9em;
-            text-transform: capitalize;
-        }
-        
-        /* Rank Colors */
-        .rank-newbie { background-color: #ccc; color: black; }
-        .rank-pupil { background-color: #4CAF50; color: white; }
-        .rank-specialist { background-color: #03a89e; color: white; }
-        .rank-expert { background-color: #2196F3; color: white; }
-        .rank-candidatemaster { background-color: #9C27B0; color: white; }
-        .rank-master { background-color: #FFC107; color: #333; }
-        .rank-internationalmaster { background-color: #FF9800; color: white; }
-        .rank-grandmaster, .rank-internationalgrandmaster, .rank-legendarygrandmaster { background-color: #F44336; color: white; }
-
-        .summary-stats {
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
-            border-top: 1px solid #444;
-            padding-top: 20px;
-        }
-
-        .stat-label {
-            display: block;
-            font-size: 0.9em;
-            color: #b0b0b0;
-        }
-
-        .stat-value {
-            display: block;
-            font-size: 1.5em;
+        .handle-title {
+            font-size: 2.5rem;
             font-weight: 700;
-            margin-top: 5px;
+            line-height: 1;
+            margin-bottom: 10px;
         }
 
-        .max-rating { color: #fce38a; }
-
-        /* --- Details Grid --- */
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .details-grid strong { color: var(--accent-color); }
-
-        /* --- Submissions Table --- */
-        #submissionsTable {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.9em;
-        }
-
-        #submissionsTable th, #submissionsTable td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #444;
-        }
-
-        #submissionsTable th {
-            background-color: rgba(0,0,0,0.2);
-            color: var(--accent-color);
-            text-transform: uppercase;
+        .rank-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 0.9rem;
             font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        #submissionsTable tbody tr:hover {
-            background-color: #3d3d5f;
-        }
-
-        /* Verdicts */
-        .verdict-OK { color: #4CAF50; font-weight: 700; }
-        .verdict-WRONG_ANSWER { color: #F44336; font-weight: 600; }
-        .verdict-TIME_LIMIT_EXCEEDED { color: #ff9800; font-weight: 600; }
-        .verdict-COMPILATION_ERROR { color: #9c27b0; font-weight: 600; }
-        .verdict-RUNTIME_ERROR { color: #e91e63; font-weight: 600; }
-
-        /* Buttons */
-        .submission-actions {
-            display: flex;
-            justify-content: center;
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
             margin-top: 25px;
-            flex-wrap: wrap;
         }
 
-        .action-button {
-            padding: 12px 25px;
+        .stat-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: var(--transition);
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px; }
+        .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--text-main); }
+        .stat-value.rating-max { color: var(--rank-master); }
+
+        /* --- DETAILS GRID --- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item strong { color: var(--accent-primary); display: block; font-size: 0.85rem; margin-bottom: 4px; }
+        .info-item span { color: var(--text-main); font-size: 1rem; }
+
+        /* --- SUBMISSIONS TABLE --- */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-align: left;
+            padding: 16px;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        /* Verdict Colors */
+        .verdict-OK { color: var(--rank-pupil); font-weight: 600; }
+        .verdict-WRONG_ANSWER { color: var(--rank-lgm); }
+        .verdict-TIME_LIMIT_EXCEEDED { color: var(--rank-master); }
+        .verdict-COMPILATION_ERROR { color: var(--rank-cm); }
+        .verdict-RUNTIME_ERROR { color: var(--rank-gm); }
+
+        /* --- BUTTONS --- */
+        .actions-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .btn-action {
+            padding: 12px 24px;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            font-family: inherit;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        #detailedSubmissionsBtn { background-color: var(--secondary-accent); color: white; }
-        #detailedSubmissionsBtn:hover { background-color: #d12e4b; transform: translateY(-2px); }
+        .btn-action:hover:not(:disabled) {
+            background: var(--text-main);
+            color: var(--bg-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.1);
+        }
 
-        #trackRatingBtn { background-color: #6a1b9a; color: white; }
-        #trackRatingBtn:hover { background-color: #531579; transform: translateY(-2px); }
-        
-        .action-button:disabled {
-            background-color: #444 !important;
+        .btn-action:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
-            color: #999;
-            transform: none !important;
         }
 
-        /* --- Utility & Loading --- */
-        .hidden { display: none !important; }
-
-        #loading {
-            text-align: center;
-            padding: 40px;
+        /* --- THE NEW ERROR STATE (REDESIGNED) --- */
+        #error-container {
             grid-column: 1 / -1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-            color: var(--accent-color);
-        }
-
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border-left-color: var(--accent-color);
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        #error {
+            justify-content: center;
+            padding: 60px 20px;
             text-align: center;
-            padding: 20px;
-            font-size: 1.1em;
-            color: #ff6b6b;
-            background: rgba(255,0,0,0.1);
-            border: 1px solid #ff6b6b;
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px dashed rgba(239, 68, 68, 0.3);
             border-radius: var(--border-radius);
-            grid-column: 1 / -1;
+            animation: fadeIn 0.5s ease;
         }
 
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            header { flex-direction: column; gap: 15px; padding: 20px; }
-            .search-container { width: 100%; margin: 0; }
-            .nav-actions { width: 100%; justify-content: center; }
-            #submissionsTable th:nth-child(4), /* Rating */
-            #submissionsTable td:nth-child(4),
-            #submissionsTable th:nth-child(6), /* Time */
-            #submissionsTable td:nth-child(6) {
-                display: none; /* Hide Rating and Time on very small screens */
-            }
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
         }
+
+        .error-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f87171;
+            margin-bottom: 8px;
+        }
+
+        .error-desc {
+            color: var(--text-muted);
+            max-width: 400px;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        /* --- LOADING --- */
+        .loading-container {
+            text-align: center;
+            padding: 50px;
+            grid-column: 1 / -1;
+            color: var(--accent-primary);
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(56, 189, 248, 0.1);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
+
+ 
+        .rank-color-newbie { color: var(--rank-newbie); }
+        .rank-color-pupil { color: var(--rank-pupil); }
+        .rank-color-specialist { color: var(--rank-specialist); }
+        .rank-color-expert { color: var(--rank-expert); }
+        .rank-color-candidatemaster { color: var(--rank-cm); }
+        .rank-color-master { color: var(--rank-master); }
+        .rank-color-internationalmaster { color: var(--rank-master); } /* Orange often same as master or slightly diff */
+        .rank-color-grandmaster { color: var(--rank-gm); }
+        .rank-color-internationalgrandmaster { color: var(--rank-gm); }
+        .rank-color-legendarygrandmaster { color: var(--rank-lgm); }
 
         footer {
             text-align: center;
-            padding: 20px 0;
-            margin-top: 50px;
-            border-top: 1px solid #444;
-            color: #777;
-            font-size: 0.9em;
+            padding: 30px;
+            color: rgba(255,255,255,0.2);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 15px; padding: 20px; }
+            .search-container { margin: 0; width: 100%; }
+            .summary-content { flex-direction: column; text-align: center; }
+            .actions-row { justify-content: center; flex-wrap: wrap; }
+          
+            td:nth-child(4), th:nth-child(4), td:nth-child(6), th:nth-child(6) { display: none; }
         }
     </style>
 </head>
@@ -366,290 +418,308 @@
 
     <header>
         <div class="brand">
-            <span>CF Explorer 🚀</span>
+            <span>🚀 CF Explorer</span>
         </div>
     
         <div class="search-container">
-            <input type="text" id="handleInput" placeholder="Enter Codeforces Handle (e.g. tourist)...">
-            <button id="searchButton" title="Search User">🔍</button>
+            <input type="text" id="handleInput" placeholder="Search handle (e.g. tourist)">
+            <button id="searchButton">🔍</button>
         </div>
     
         <nav class="nav-actions">
-            <a href="contest.html" class="nav-link-btn">
-                <span>View Contests</span> 🏆
-            </a>
+            <a href="contest.html" class="nav-link-btn">Contests</a>
         </nav>
     </header>
 
     <main id="profileContainer">
-        <div id="loading" class="hidden">
+        
+        <div id="loading" class="loading-container hidden">
             <div class="spinner"></div>
             <span>Fetching Profile Data...</span>
         </div>
         
-        <div id="error" class="hidden"></div>
+        <div id="error-container" class="hidden">
+            </div>
 
-        <section id="summarySection" class="profile-card hidden">
-            <div class="summary-header">
-                <img id="userAvatar" src="" alt="User Avatar" class="avatar">
-                <div class="user-info">
-                    <h2 id="summaryHandle"></h2>
-                    <p id="summaryRank" class="rank-tag"></p>
-                    <p style="margin-top: 5px;"><span id="summaryCountry"></span></p>
+        <section id="summarySection" class="glass-card hidden">
+            <div class="summary-content">
+                <div class="avatar-container">
+                    <img id="userAvatar" src="" alt="" class="avatar">
+                </div>
+                <div class="user-meta">
+                    <h2 id="summaryHandle" class="handle-title"></h2>
+                    <span id="summaryRank" class="rank-badge"></span>
+                    <p id="summaryCountry" style="color: var(--text-muted); margin-top: 5px;"></p>
                 </div>
             </div>
-            <div class="summary-stats">
-                <div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
                     <span class="stat-label">Current Rating</span>
                     <span id="currentRating" class="stat-value"></span>
                 </div>
-                <div>
+                <div class="stat-box">
                     <span class="stat-label">Max Rating</span>
-                    <span id="maxRating" class="stat-value max-rating"></span>
+                    <span id="maxRating" class="stat-value rating-max"></span>
                 </div>
-                <div>
-                    <span class="stat-label">Registered</span>
-                    <span id="registeredAt" class="stat-value"></span>
+                <div class="stat-box">
+                    <span class="stat-label">Friends</span>
+                    <span id="detailFriendCount" class="stat-value"></span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Contribution</span>
+                    <span id="detailContribution" class="stat-value"></span>
                 </div>
             </div>
         </section>
 
-        <section id="detailsSection" class="details-card hidden">
-            <h3>Detailed Information</h3>
-            <div class="details-grid">
-                <div><strong>First Name:</strong> <span id="detailFirstName"></span></div>
-                <div><strong>Last Name:</strong> <span id="detailLastName"></span></div>
-                <div><strong>Organization:</strong> <span id="detailOrganization"></span></div>
-                <div><strong>Contribution:</strong> <span id="detailContribution"></span></div>
-                <div><strong>Last Online:</strong> <span id="detailLastOnline"></span></div>
-                <div><strong>Friends:</strong> <span id="detailFriendCount"></span></div>
+        <section id="detailsSection" class="glass-card hidden">
+            <h3>User Details</h3>
+            <div class="info-grid">
+                <div class="info-item"><strong>Full Name</strong> <span id="detailFullName"></span></div>
+                <div class="info-item"><strong>Organization</strong> <span id="detailOrganization"></span></div>
+                <div class="info-item"><strong>Registered</strong> <span id="registeredAt"></span></div>
+                <div class="info-item"><strong>Last Online</strong> <span id="detailLastOnline"></span></div>
             </div>
         </section>
 
-        <section id="submissionsSection" class="submissions-card hidden">
-            <h3>Recent Submissions (Last 10)</h3>
-            <div style="overflow-x: auto;">
+        <section id="submissionsSection" class="glass-card hidden">
+            <h3>Recent Activity</h3>
+            <div class="table-container">
                 <table id="submissionsTable">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Contest</th>
                             <th>Problem</th>
                             <th>Rating</th>
                             <th>Verdict</th>
-                            <th>Time</th>
                             <th>Lang</th>
+                            <th>Time</th>
                         </tr>
                     </thead>
-                    <tbody id="submissionsBody">
-                        </tbody>
+                    <tbody id="submissionsBody"></tbody>
                 </table>
             </div>
             
-            <div class="submission-actions">
-                <button id="detailedSubmissionsBtn" class="action-button" disabled>View Detailed Report 📊</button>
-                <button id="trackRatingBtn" class="action-button" disabled>Track Rating History 📈</button>
+            <div class="actions-row">
+                <button id="detailedSubmissionsBtn" class="btn-action" disabled>Detailed Report 📊</button>
+                <button id="trackRatingBtn" class="btn-action" disabled>Rating Graph 📈</button>
             </div>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2025 Codeforces API Explorer</p>
+        <p>&copy; 2025 Codeforces API Explorer • Designed with ❤️</p>
     </footer>
 
     <script>
-document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
 
-    const handleInput = document.getElementById('handleInput');
-    const searchButton = document.getElementById('searchButton');
-    const loading = document.getElementById('loading');
-    const errorDiv = document.getElementById('error');
+            const handleInput = document.getElementById('handleInput');
+            const searchButton = document.getElementById('searchButton');
+            const loading = document.getElementById('loading');
+            
+      
+            const errorDiv = document.getElementById('error-container'); 
 
-    const detailedSubmissionsBtn = document.getElementById('detailedSubmissionsBtn');
-    const trackRatingBtn = document.getElementById('trackRatingBtn');
+            const detailedSubmissionsBtn = document.getElementById('detailedSubmissionsBtn');
+            const trackRatingBtn = document.getElementById('trackRatingBtn');
 
-    // ✅ DEPLOYED BACKEND URL
-    const API_BASE_URL = 'https://cff-production.up.railway.app/api/v0.1/cf/user/';
 
-    let currentHandle = '';
+            const API_BASE_URL = 'https://cff-production.up.railway.app/api/v0.1/cf/user/';
 
-    /* -------------------- HELPERS -------------------- */
+            let currentHandle = '';
 
-    const setVisibility = (id, visible) => {
-        document.getElementById(id).classList.toggle('hidden', !visible);
-    };
 
-    const timeConverter = (unix, dateOnly = false) => {
-        if (!unix) return 'N/A';
-        const d = new Date(unix * 1000);
-        return d.toLocaleDateString("en-US", dateOnly
-            ? { year: 'numeric', month: 'short', day: 'numeric' }
-            : { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
-        );
-    };
 
-    const saveHandle = (handle) => {
-        localStorage.setItem('lastCodeforcesHandle', handle);
-    };
+            const setVisibility = (id, visible) => {
+                const el = document.getElementById(id);
+                if(el) el.classList.toggle('hidden', !visible);
+            };
 
-    const getHandleFromUrl = () => {
-        const params = new URLSearchParams(window.location.search);
-        return params.get('handle');
-    };
+            const timeConverter = (unix, dateOnly = false) => {
+                if (!unix) return 'N/A';
+                const d = new Date(unix * 1000);
+                return d.toLocaleDateString("en-US", dateOnly
+                    ? { year: 'numeric', month: 'short', day: 'numeric' }
+                    : { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+                );
+            };
 
-    /* -------------------- CORE LOGIC -------------------- */
+            const saveHandle = (handle) => localStorage.setItem('lastCodeforcesHandle', handle);
+            const getHandleFromUrl = () => new URLSearchParams(window.location.search).get('handle');
 
-    const loadInitialProfile = () => {
-        const urlHandle = getHandleFromUrl();
+         
+            const fetchWithCffError = async (url) => {
+                try {
+                    const res = await fetch(url);
+                    if (res.ok) return res.json();
+                    
+                    const err = await res.json().catch(() => ({}));
+                    let msg = 'Unknown Error';
+                    
+                    if (err?.apiResponseCode === 4004) msg = 'User Not Found';
+                    else if (err?.apiResponseCode === 4008) msg = 'Rate Limit';
+                    else if (err?.message) msg = err.message;
+                    
+                    throw new Error(msg);
+                } catch (e) {
+                    throw e; 
+                }
+            };
 
-        if (urlHandle) {
-            handleInput.value = urlHandle;
-            searchProfile(urlHandle);
-            return;
-        }
+          
 
-        const savedHandle = localStorage.getItem('lastCodeforcesHandle');
-        if (savedHandle) {
-            handleInput.value = savedHandle;
-            searchProfile(savedHandle);
-        }
-    };
+            const loadInitialProfile = () => {
+                const urlHandle = getHandleFromUrl();
+                const savedHandle = localStorage.getItem('lastCodeforcesHandle');
+                
+                if (urlHandle) {
+                    handleInput.value = urlHandle;
+                    searchProfile(urlHandle);
+                } else if (savedHandle) {
+                    handleInput.value = savedHandle;
+                    searchProfile(savedHandle);
+                }
+            };
 
-    const searchProfile = async (initialHandle = null) => {
-        const handle = initialHandle || handleInput.value.trim();
+            const searchProfile = async (initialHandle = null) => {
+                const handle = initialHandle || handleInput.value.trim();
+                if (!handle) return;
 
-        if (!handle) {
-            alert('Please enter a Codeforces handle');
-            return;
-        }
+                currentHandle = handle;
 
-        currentHandle = handle;
+                // Reset UI
+                setVisibility('summarySection', false);
+                setVisibility('detailsSection', false);
+                setVisibility('submissionsSection', false);
+                setVisibility('error-container', false);
+                setVisibility('loading', true);
 
-        // Reset UI
-        setVisibility('summarySection', false);
-        setVisibility('detailsSection', false);
-        setVisibility('submissionsSection', false);
-        setVisibility('error', false);
-        setVisibility('loading', true);
+                detailedSubmissionsBtn.disabled = true;
+                trackRatingBtn.disabled = true;
 
-        detailedSubmissionsBtn.disabled = true;
-        trackRatingBtn.disabled = true;
+                try {
+                    const summary = await fetchWithCffError(`${API_BASE_URL}${handle}/summary`);
+                    const details = await fetchWithCffError(`${API_BASE_URL}${handle}`);
+                    const subs = await fetchWithCffError(`${API_BASE_URL}${handle}/submissions?count=10`);
 
-        try {
-            // 1️⃣ SUMMARY
-            const summaryRes = await fetch(`${API_BASE_URL}${handle}/summary`);
-            if (!summaryRes.ok) throw new Error('User not found');
+                    renderSummary(summary);
+                    renderDetails(details);
+                    renderSubmissions(subs);
 
-            const summary = await summaryRes.json();
-            renderSummary(summary);
+                    saveHandle(handle);
 
-            // 2️⃣ DETAILS
-            const detailsRes = await fetch(`${API_BASE_URL}${handle}`);
-            const details = await detailsRes.json();
-            renderDetails(details);
+                    setVisibility('summarySection', true);
+                    setVisibility('detailsSection', true);
+                    setVisibility('submissionsSection', true);
+                    detailedSubmissionsBtn.disabled = false;
+                    trackRatingBtn.disabled = false;
 
-            // 3️⃣ SUBMISSIONS
-            const subsRes = await fetch(`${API_BASE_URL}${handle}/submissions?count=10`);
-            const subs = await subsRes.json();
-            renderSubmissions(subs);
+                } catch (err) {
+                    showFancyError(err.message, handle);
+                } finally {
+                    setVisibility('loading', false);
+                }
+            };
 
-            saveHandle(handle);
 
-            setVisibility('summarySection', true);
-            setVisibility('detailsSection', true);
-            setVisibility('submissionsSection', true);
 
-            detailedSubmissionsBtn.disabled = false;
-            trackRatingBtn.disabled = false;
+         
+            const showFancyError = (msg, handle) => {
+                let icon = '⚠️';
+                let title = 'Something went wrong';
+                let description = `We encountered an error while fetching data for <strong>${handle}</strong>.`;
 
-        } catch (err) {
-            errorDiv.textContent = `❌ ${err.message}`;
-            setVisibility('error', true);
-        } finally {
-            setVisibility('loading', false);
-        }
-    };
+                if (msg.includes('Not Found') || msg.includes('4004')) {
+                    icon = '🕵️‍♂️';
+                    title = 'User Not Found';
+                    description = `We couldn't track down the handle <strong>"${handle}"</strong>. <br> Please check the spelling and try again.`;
+                } else if (msg.includes('Rate Limit')) {
+                    icon = '🐌';
+                    title = 'Slow Down';
+                    description = 'Codeforces is receiving too many requests. Please wait a moment.';
+                }
 
-    /* -------------------- RENDERERS -------------------- */
+                errorDiv.innerHTML = `
+                    <div class="error-icon">${icon}</div>
+                    <div class="error-title">${title}</div>
+                    <div class="error-desc">${description}</div>
+                `;
+                setVisibility('error-container', true);
+            };
 
-    const renderSummary = (data) => {
-        document.getElementById('userAvatar').src = data.avatar || 'https://userpic.codeforces.org/no-avatar.jpg';
-        document.getElementById('summaryHandle').textContent = data.handle;
+            const renderSummary = (data) => {
+                document.getElementById('userAvatar').src = data.avatar || 'https://userpic.codeforces.org/no-avatar.jpg';
+                const handleEl = document.getElementById('summaryHandle');
+                handleEl.textContent = data.handle;
+                
+             
+                handleEl.className = `handle-title rank-color-${(data.rank || 'newbie').replace(/\s/g, '')}`;
 
-        const rankTag = document.getElementById('summaryRank');
-        rankTag.className = 'rank-tag';
+                const rankTag = document.getElementById('summaryRank');
+                rankTag.textContent = data.rank || 'Unrated';
+                
+                document.getElementById('summaryCountry').textContent = data.country || 'Location Unknown';
+                document.getElementById('currentRating').textContent = data.currentRating ?? 'N/A';
+                document.getElementById('maxRating').textContent = data.maxRating ?? 'N/A';
+                document.getElementById('registeredAt').textContent = timeConverter(data.registeredAt, true);
+            };
 
-        if (data.rank) {
-            rankTag.textContent = data.rank;
-            rankTag.classList.add(`rank-${data.rank.toLowerCase().replace(/\s/g, '')}`);
-        } else {
-            rankTag.textContent = 'Unrated';
-            rankTag.classList.add('rank-newbie');
-        }
+            const renderDetails = (data) => {
+                const fullName = [data.firstName, data.lastName].filter(Boolean).join(' ');
+                document.getElementById('detailFullName').textContent = fullName || 'N/A';
+                document.getElementById('detailOrganization').textContent = data.organization || 'N/A';
+                document.getElementById('detailContribution').textContent = (data.contribution > 0 ? '+' : '') + (data.contribution || 0);
+                document.getElementById('detailFriendCount').textContent = data.friendOfCount || 0;
+                document.getElementById('detailLastOnline').textContent = timeConverter(data.lastOnlineTimeSeconds);
+            };
 
-        document.getElementById('summaryCountry').textContent = data.country || 'Unknown';
-        document.getElementById('currentRating').textContent = data.currentRating ?? 'Unrated';
-        document.getElementById('maxRating').textContent = data.maxRating ?? 'N/A';
-        document.getElementById('registeredAt').textContent = timeConverter(data.registeredAt, true);
-    };
+            const renderSubmissions = (subs) => {
+                const tbody = document.getElementById('submissionsBody');
+                tbody.innerHTML = '';
 
-    const renderDetails = (data) => {
-        document.getElementById('detailFirstName').textContent = data.firstName || '-';
-        document.getElementById('detailLastName').textContent = data.lastName || '-';
-        document.getElementById('detailOrganization').textContent = data.organization || '-';
-        document.getElementById('detailContribution').textContent = data.contribution || 0;
-        document.getElementById('detailFriendCount').textContent = data.friendOfCount || 0;
-        document.getElementById('detailLastOnline').textContent = timeConverter(data.lastOnlineTimeSeconds);
-    };
+                if (!subs || subs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--text-muted);">No recent activity</td></tr>';
+                    return;
+                }
 
-    const renderSubmissions = (subs) => {
-        const tbody = document.getElementById('submissionsBody');
-        tbody.innerHTML = '';
+                subs.forEach(s => {
+                    const row = tbody.insertRow();
+                    const probName = `${s.problem.index} - ${s.problem.name}`;
+                    const shortLang = s.programmingLanguage.split(' ')[0]; // Simplify lang name
 
-        if (!subs || subs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No submissions found</td></tr>';
-            return;
-        }
+                    row.innerHTML = `
+                        <td>
+                            <a href="https://codeforces.com/contest/${s.contestId}/problem/${s.problem.index}" 
+                               target="_blank" 
+                               style="color: var(--text-main); text-decoration: none; font-weight: 500;">
+                               ${probName}
+                            </a>
+                        </td>
+                        <td>${s.problem.rating || '<span style="opacity:0.5">-</span>'}</td>
+                        <td class="verdict-${s.verdict}">${s.verdict.replace(/_/g, ' ')}</td>
+                        <td style="font-size: 0.85em; opacity: 0.8;">${shortLang}</td>
+                        <td style="font-size: 0.85em; opacity: 0.8;">${timeConverter(s.creationTimeSeconds)}</td>
+                    `;
+                });
+            };
 
-        subs.forEach(s => {
-            const row = tbody.insertRow();
-            row.innerHTML = `
-                <td>${s.id}</td>
-                <td>${s.contestId}</td>
-                <td>
-                    <a href="https://codeforces.com/contest/${s.contestId}/problem/${s.problem.index}"
-                       target="_blank"
-                       style="color: var(--accent-color);">
-                        ${s.problem.index}
-                    </a>
-                </td>
-                <td>${s.problem.rating || '-'}</td>
-                <td class="verdict-${s.verdict}">${s.verdict}</td>
-                <td>${timeConverter(s.creationTimeSeconds, true)}</td>
-                <td>${s.programmingLanguage.split('(')[0]}</td>
-            `;
+        
+            searchButton.addEventListener('click', () => searchProfile());
+            handleInput.addEventListener('keypress', e => {
+                if (e.key === 'Enter') searchProfile();
+            });
+
+            detailedSubmissionsBtn.addEventListener('click', () => {
+                window.location.href = `detailed-submissions.html?handle=${currentHandle}`;
+            });
+
+            trackRatingBtn.addEventListener('click', () => {
+                window.location.href = `rating-history.html?handle=${currentHandle}`;
+            });
+
+            loadInitialProfile();
         });
-    };
-
-    /* -------------------- EVENTS -------------------- */
-
-    searchButton.addEventListener('click', () => searchProfile());
-    handleInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter') searchProfile();
-    });
-
-    detailedSubmissionsBtn.addEventListener('click', () => {
-        window.location.href = `detailed-submissions.html?handle=${currentHandle}`;
-    });
-
-    trackRatingBtn.addEventListener('click', () => {
-        window.location.href = `rating-history.html?handle=${currentHandle}`;
-    });
-
-    // 🚀 START
-    loadInitialProfile();
-});
-</script>
-
+    </script>
 </body>
 </html>

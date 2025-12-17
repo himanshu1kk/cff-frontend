@@ -3,357 +3,478 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codeforces Rating History</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Rating History | CFF Explorer</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* ... Keep your existing :root and reset (*, body) styles ... */
         :root {
-            --bg-color: #1a1a2e;
-            --card-color: #2c2c44;
-            --text-color: #e0e0e0;
-            --accent-color: #00bcd4;
-            --secondary-accent: #f73859;
-            --shadow-color: rgba(0, 0, 0, 0.4);
-            --border-radius: 8px;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent-primary: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #4ade80;
+            --danger: #f87171;
+            --font-main: 'Outfit', sans-serif;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            padding: 20px;
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 30px 20px;
+            /* Matrix Grid Background */
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 0 15px; /* Added side padding for mobile */
+            animation: fadeIn 0.8s ease-out;
         }
 
-        /* --- NEW NAVIGATION STYLE --- */
+        /* --- NAVIGATION --- */
         .top-nav {
+            margin-bottom: 30px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-top: 10px;
         }
 
-        .nav-link {
+        .back-btn {
             display: inline-flex;
             align-items: center;
-            color: var(--text-color);
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            color: var(--text-muted);
             text-decoration: none;
+            font-size: 0.9rem;
             font-weight: 500;
-            font-size: 0.95rem;
-            transition: color 0.3s ease, transform 0.2s ease;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
 
-        .nav-link svg {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            fill: var(--text-color);
-            transition: fill 0.3s ease;
+        .back-btn svg { margin-right: 8px; width: 18px; fill: currentColor; }
+
+        .back-btn:hover {
+            background: var(--accent-primary);
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px var(--accent-glow);
+            border-color: var(--accent-primary);
+            transform: translateX(-3px);
         }
 
-        .nav-link:hover {
-            color: var(--accent-color);
-            transform: translateX(-5px); /* Subtle slide effect */
-        }
-        
-        .nav-link:hover svg {
-            fill: var(--accent-color);
-        }
-
-        /* --- UPDATED HEADER --- */
+        /* --- HEADER --- */
         header {
-            text-align: center;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-            /* Removed relative positioning as button is moved out */
-        }
-
-        h1 {
-            color: var(--accent-color);
-            font-weight: 700;
-            font-size: 2.2rem; /* Increased size slightly */
-        }
-
-        .handle-display {
-            font-size: 1.5em;
-            color: #fce38a;
-            margin-top: 5px;
-        }
-
-        /* ... Keep the rest of your CSS (Chart, Table, loading, etc.) exactly as is ... */
-        
-        .chart-card {
-            background-color: var(--card-color);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 15px var(--shadow-color);
-            margin-bottom: 30px;
-            height: 500px;
+            margin-bottom: 40px;
             position: relative;
         }
 
-        h2 {
-            color: var(--accent-color);
-            margin-bottom: 15px;
-            border-bottom: 1px solid #444;
-            padding-bottom: 5px;
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        #ratingsTable {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.9em;
-            background-color: var(--card-color);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: 0 4px 15px var(--shadow-color);
-        }
-
-        #ratingsTable th, #ratingsTable td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #444;
-        }
-
-        #ratingsTable th {
-            background-color: var(--bg-color);
-            color: var(--accent-color);
-            text-transform: uppercase;
+        .handle-badge {
+            display: inline-block;
+            font-size: 1.2rem;
+            color: var(--accent-primary);
             font-weight: 600;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 5px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
         }
 
-        #ratingsTable tbody tr:hover { background-color: #3d3d5f; }
-        .rating-change-positive { color: #4CAF50; font-weight: 600; }
-        .rating-change-negative { color: #F44336; font-weight: 600; }
-        .rating-unchanged { color: #b0b0b0; }
-        .hidden { display: none !important; }
+        /* --- GLASS CARDS --- */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
         
-        #loading, #error {
+        .card-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 0 10px var(--accent-primary);
+        }
+
+        .chart-container {
+            height: 400px;
+            width: 100%;
+        }
+
+        /* --- TABLE SECTION --- */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            transition: background 0.2s;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        
+        tr:hover td {
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* Table Specific Styles */
+        .contest-link {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .contest-link:hover { color: var(--accent-primary); text-decoration: underline; }
+
+        .change-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+        }
+        .pill-positive { background: rgba(74, 222, 128, 0.15); color: var(--success); }
+        .pill-negative { background: rgba(248, 113, 113, 0.15); color: var(--danger); }
+        .pill-neutral { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+        .rank-text { color: var(--text-muted); font-family: monospace; }
+
+        .hidden { display: none !important; }
+
+        /* Loader */
+        .loading-state {
+            text-align: center;
+            padding: 60px;
+            color: var(--accent-primary);
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(56, 189, 248, 0.1);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            margin: 0 auto 20px;
+        }
+
+        .error-state {
             text-align: center;
             padding: 40px;
-            font-size: 1.5em;
-            color: var(--accent-color);
+            color: var(--danger);
+            background: rgba(248, 113, 113, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(248, 113, 113, 0.2);
         }
-        #error { color: #F44336; }
-        
-        /* General links inside table */
-        a { color: var(--accent-color); text-decoration: none; }
-        a:hover { text-decoration: underline; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     </style>
 </head>
 <body>
 
     <div class="container">
+        
         <nav class="top-nav">
-            <div class="nav-link" onclick="window.location.href='main.html'">
-                <svg viewBox="0 0 24 24">
-                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                </svg>
+            <div id="backButton" class="back-btn">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
                 Back to Profile
             </div>
         </nav>
 
         <header>
-            <h1>Codeforces Rating History</h1>
-            <div class="handle-display" id="reportHandle">Loading...</div>
+            <h1>Rating History</h1>
+            <div id="reportHandle" class="handle-badge">Loading...</div>
         </header>
 
-        <div id="loading">Fetching rating data and generating chart...</div>
-        <div id="error" class="hidden"></div>
+        <div id="loading" class="loading-state">
+            <div class="spinner"></div>
+            <p>Analyzing contest performance...</p>
+        </div>
+        <div id="error" class="hidden error-state"></div>
         
         <div id="content" class="hidden">
-            <section class="chart-card">
-                <h2>Rating Progression</h2>
-                <canvas id="ratingChart"></canvas>
+            
+            <section class="glass-card">
+                <div class="card-title">Progression Curve</div>
+                <div class="chart-container">
+                    <canvas id="ratingChart"></canvas>
+                </div>
             </section>
             
-            <section>
-                <h2>Contest Results Detail</h2>
-                <table id="ratingsTable">
-                    <thead>
-                        <tr>
-                            <th>Contest Name</th>
-                            <th>Date</th>
-                            <th>Old Rating</th>
-                            <th>New Rating</th>
-                            <th>Change</th>
-                            <th>Rank</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ratingsBody">
-                        </tbody>
-                </table>
+            <section class="glass-card">
+                <div class="card-title">Contest Log</div>
+                <div class="table-wrapper">
+                    <table id="ratingsTable">
+                        <thead>
+                            <tr>
+                                <th>Contest</th>
+                                <th>Date</th>
+                                <th>Old</th>
+                                <th>New</th>
+                                <th>Change</th>
+                                <th>Rank</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ratingsBody"></tbody>
+                    </table>
+                </div>
             </section>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-           // ... (Your existing JavaScript code) ...
-           // Just copy-paste your previous JS here
-           const API_BASE_URL = 'https://cff-production.up.railway.app/api/v0.1/cf/user/';
-           
-           const reportHandle = document.getElementById('reportHandle');
-           const ratingsBody = document.getElementById('ratingsBody');
-           const loadingDiv = document.getElementById('loading');
-           const errorDiv = document.getElementById('error');
-           const contentDiv = document.getElementById('content');
-           const ctx = document.getElementById('ratingChart').getContext('2d');
-           let ratingChart = null;
+    document.addEventListener('DOMContentLoaded', () => {
 
-           const getQueryParam = (name) => {
-               const urlParams = new URLSearchParams(window.location.search);
-               return urlParams.get(name);
-           };
-           
-           const setVisibility = (id, visible) => {
-               document.getElementById(id).classList.toggle('hidden', !visible);
-           };
+        const API_BASE_URL = 'https://cff-production.up.railway.app/api/v0.1/cf/user/';
 
-           const timeConverter = (UNIX_timestamp) => {
-               if (!UNIX_timestamp) return 'N/A';
-               const a = new Date(UNIX_timestamp * 1000);
-               return a.toLocaleDateString("en-US", {
-                   year: 'numeric', month: 'short', day: 'numeric'
-               });
-           };
+        const reportHandle = document.getElementById('reportHandle');
+        const ratingsBody = document.getElementById('ratingsBody');
+        const backButton = document.getElementById('backButton');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const contentDiv = document.getElementById('content');
+        const ctx = document.getElementById('ratingChart').getContext('2d');
 
-           const fetchRatingHistory = async (handle) => {
-               setVisibility('loading', true);
-               setVisibility('error', false);
-               contentDiv.classList.add('hidden');
+        let ratingChart = null;
+        let currentHandle = null;
 
-               try {
-                   const response = await fetch(`${API_BASE_URL}${handle}/rating`);
-                   if (!response.ok) {
-                       const errorData = await response.json();
-                       throw new Error(errorData.error || `Failed to fetch rating history for ${handle}.`);
-                   }
-                   const ratingData = await response.json();
-                   if (!ratingData || ratingData.length === 0) {
-                       throw new Error("No completed contests found for this user.");
-                   }
-                   renderTable(ratingData);
-                   renderChart(ratingData);
-                   contentDiv.classList.remove('hidden');
-               } catch (err) {
-                   errorDiv.textContent = `Error: ${err.message}`;
-                   setVisibility('error', true);
-               } finally {
-                   setVisibility('loading', false);
-               }
-           };
 
-           const renderTable = (data) => {
-               ratingsBody.innerHTML = '';
-               const reversedData = [...data].reverse();
-               reversedData.forEach(item => {
-                   const row = ratingsBody.insertRow();
-                   const change = item.newRating - item.oldRating;
-                   const changeText = change > 0 ? `+${change}` : (change < 0 ? change : 0);
-                   const changeClass = change > 0 ? 'rating-change-positive' : (change < 0 ? 'rating-change-negative' : 'rating-unchanged');
-                   const contestUrl = `https://codeforces.com/contest/${item.contestId}`;
-                   row.innerHTML = `
-                       <td><a href="${contestUrl}" target="_blank">${item.contestName}</a></td>
-                       <td>${timeConverter(item.ratingUpdateTimeSeconds)}</td>
-                       <td>${item.oldRating}</td>
-                       <td>${item.newRating}</td>
-                       <td class="${changeClass}">${changeText}</td>
-                       <td>${item.rank}</td>
-                   `;
-               });
-           };
-           
-           const varToHex = (cssVar) => {
-                const style = getComputedStyle(document.documentElement);
-                const color = style.getPropertyValue(cssVar).trim();
-                return color.startsWith('#') ? color : '#e0e0e0';
+        const getQueryParam = (name) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        };
+
+        const setVisibility = (id, visible) => {
+            document.getElementById(id).classList.toggle('hidden', !visible);
+        };
+
+        const timeConverter = (unix) => {
+            if (!unix) return 'N/A';
+            return new Date(unix * 1000).toLocaleDateString("en-US", {
+                year: 'numeric', month: 'short', day: 'numeric'
+            });
+        };
+
+
+        const init = async () => {
+            currentHandle = getQueryParam('handle');
+
+            if (!currentHandle) {
+                errorDiv.textContent = '❌ No handle provided.';
+                setVisibility('error', true);
+                setVisibility('loading', false);
+                return;
             }
 
-           const renderChart = (data) => {
-               const labels = data.map(item => item.contestName);
-               const ratings = data.map(item => item.newRating);
-               const minRating = Math.min(...ratings, 0);
-               const maxRating = Math.max(...ratings);
-               const suggestedMin = Math.floor(minRating / 100) * 100;
-               const suggestedMax = Math.ceil(maxRating / 100) * 100;
+            reportHandle.textContent = `@${currentHandle}`;
+            
+            backButton.onclick = () => {
+                window.location.href = `main.html?handle=${currentHandle}`; 
+            };
 
-               if (ratingChart) { ratingChart.destroy(); }
+            fetchRatingHistory(currentHandle);
+        };
 
-               ratingChart = new Chart(ctx, {
-                   type: 'line',
-                   data: {
-                       labels: labels,
-                       datasets: [{
-                           label: 'New Rating',
-                           data: ratings,
-                           borderColor: varToHex('--accent-color'),
-                           backgroundColor: 'rgba(0, 188, 212, 0.2)',
-                           borderWidth: 3,
-                           tension: 0.4,
-                           pointRadius: 5,
-                           pointBackgroundColor: varToHex('--secondary-accent'),
-                           fill: true,
-                       }]
-                   },
-                   options: {
-                       responsive: true,
-                       maintainAspectRatio: false,
-                       plugins: {
-                           legend: { display: false },
-                           title: {
-                               display: true,
-                               text: `Rating Progression for ${currentHandle}`,
-                               color: varToHex('--text-color'),
-                               font: { size: 18 }
-                           }
-                       },
-                       scales: {
-                           x: {
-                               display: true,
-                               title: { display: true, text: 'Contest', color: varToHex('--text-color') },
-                               ticks: { 
-                                   color: varToHex('--text-color'),
-                                   callback: (value, index) => labels[index].split(' (')[0]
-                               },
-                               grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                           },
-                           y: {
-                               display: true,
-                               title: { display: true, text: 'Rating', color: varToHex('--text-color') },
-                               ticks: { color: varToHex('--text-color') },
-                               grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                               suggestedMin: suggestedMin,
-                               suggestedMax: suggestedMax,
-                           }
-                       }
-                   }
-               });
-           };
+        const fetchRatingHistory = async (handle) => {
+            setVisibility('loading', true);
+            setVisibility('error', false);
+            contentDiv.classList.add('hidden');
 
-           let currentHandle = getQueryParam('handle');
-           if (currentHandle) {
-               reportHandle.textContent = currentHandle;
-               fetchRatingHistory(currentHandle);
-           } else {
-               reportHandle.textContent = 'Error: No handle provided.';
-               errorDiv.textContent = 'Please return to the main page and search for a handle.';
-               setVisibility('error', true);
-           }
-        });
+            try {
+                const response = await fetch(`${API_BASE_URL}${handle}/rating`);
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.message || "Failed to fetch data.");
+                }
+
+                const ratingData = await response.json();
+
+                if (!ratingData || ratingData.length === 0) {
+                    throw new Error("No completed contests found for this user.");
+                }
+
+                renderTable(ratingData);
+                renderChart(ratingData);
+
+                contentDiv.classList.remove('hidden');
+            } catch (err) {
+                errorDiv.innerHTML = `<strong>Error:</strong> ${err.message}`;
+                setVisibility('error', true);
+            } finally {
+                setVisibility('loading', false);
+            }
+        };
+
+
+        const renderTable = (data) => {
+            ratingsBody.innerHTML = '';
+            [...data].reverse().forEach(item => {
+                const row = ratingsBody.insertRow();
+                const change = item.newRating - item.oldRating;
+                
+                let pillClass = 'pill-neutral';
+                let sign = '';
+                if (change > 0) { pillClass = 'pill-positive'; sign = '+'; }
+                if (change < 0) { pillClass = 'pill-negative'; }
+
+                row.innerHTML = `
+                    <td>
+                        <a href="https://codeforces.com/contest/${item.contestId}"
+                           target="_blank" class="contest-link">
+                           ${item.contestName}
+                        </a>
+                    </td>
+                    <td>${timeConverter(item.ratingUpdateTimeSeconds)}</td>
+                    <td style="color: #94a3b8;">${item.oldRating}</td>
+                    <td style="font-weight: 600; color: #f1f5f9;">${item.newRating}</td>
+                    <td><span class="change-pill ${pillClass}">${sign}${change}</span></td>
+                    <td><span class="rank-text">#${item.rank}</span></td>
+                `;
+            });
+        };
+
+        const renderChart = (data) => {
+            const labels = data.map(d => timeConverter(d.ratingUpdateTimeSeconds));
+            const ratings = data.map(d => d.newRating);
+            const contestNames = data.map(d => d.contestName);
+
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(56, 189, 248, 0.5)'); 
+            gradient.addColorStop(1, 'rgba(56, 189, 248, 0.0)'); 
+
+            if (ratingChart) ratingChart.destroy();
+
+            ratingChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Rating',
+                        data: ratings,
+                        borderColor: '#38bdf8', 
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#0f172a',
+                        pointBorderColor: '#38bdf8',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.3 
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#94a3b8',
+                            bodyColor: '#f1f5f9',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                title: (context) => contestNames[context[0].dataIndex],
+                                label: (context) => `Rating: ${context.raw}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: false, 
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)',
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { family: 'Outfit' }
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                }
+            });
+        };
+
+        init();
+    });
     </script>
+
 </body>
 </html>
