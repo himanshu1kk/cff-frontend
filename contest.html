@@ -8,12 +8,13 @@
     
     <style>
         :root {
+            /* Palette - Deep Space Theme */
             --bg-body: #0f111a;
             --bg-surface: #161b2c;
             --bg-surface-hover: #1e2538;
             --bg-element: #252e42;
             
-            
+            /* Typography */
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
             --text-tertiary: #64748b;
@@ -468,18 +469,19 @@
     </div>
 
 <script>
-    const API_BASE = 'https://cff-production.up.railway.app/api/v0.1/cf/user/';
+    const API_BASE = 'https://cff-production.up.railway.app/api/v0.1';
 
     let allContests = [];
     let filteredData = [];
     let currentTab = 'upcoming';
     let currentPage = 1;
-    const itemsPerPage = 8;
+    const itemsPerPage = 8; // Slight reduction for cleaner look
 
     let ratingChangesData = [];
     let currentRatingPage = 1;
     const ratingsPerPage = 15;
 
+    // --- Utility ---
     const formatTime = (seconds) => new Date(seconds * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     const formatDuration = (seconds) => {
         const h = Math.floor(seconds / 3600);
@@ -502,6 +504,7 @@
         fetchContests();
     });
 
+    // --- Search Logic ---
     async function searchContest() {
         const id = document.getElementById('contestIdInput').value;
         if (!id) return;
@@ -509,6 +512,7 @@
         const deepDive = document.getElementById('contestDeepDive');
         const errorDiv = document.getElementById('searchError');
         
+        // Reset UI
         errorDiv.style.display = 'none';
         deepDive.style.display = 'none';
 
@@ -579,6 +583,7 @@
         return 'r-red';
     }
 
+    // --- List Logic ---
     async function fetchContests() {
         try {
             allContests = await safeFetchJson(`${API_BASE}/cf/contest`);
@@ -649,9 +654,11 @@
     function changePage(d) {
         currentPage += d;
         renderList();
+        // Smooth scroll to top of list
         document.querySelector('.tabs-container').scrollIntoView({behavior: 'smooth'});
     }
 
+    // --- Modal Logic ---
     async function openRatingModal(id, name) {
         const modal = document.getElementById('ratingModal');
         const body = document.getElementById('modalBody');
