@@ -30,7 +30,8 @@
             position: relative;
         }
 
-     
+        /* --- BACKGROUND EFFECTS --- */
+        /* Animated Grid */
         body::before {
             content: "";
             position: absolute;
@@ -46,7 +47,7 @@
             top: -50%;
         }
 
- 
+        /* Ambient Glow */
         body::after {
             content: "";
             position: absolute;
@@ -62,7 +63,7 @@
             100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
         }
 
-       
+        /* --- CARD DESIGN --- */
         .container {
             text-align: center;
             width: 90%;
@@ -79,7 +80,7 @@
             overflow: hidden;
         }
 
-        
+        /* Subtle shine effect on card */
         .container::before {
             content: "";
             position: absolute;
@@ -108,7 +109,7 @@
             font-weight: 300;
         }
 
- 
+        /* --- INPUT GROUP --- */
         .input-wrapper {
             position: relative;
             margin-bottom: 25px;
@@ -136,7 +137,7 @@
             background: rgba(0, 0, 0, 0.5);
         }
 
-
+        /* --- BUTTON --- */
         button {
             width: 100%;
             padding: 18px;
@@ -168,7 +169,7 @@
             box-shadow: none;
         }
 
-       
+        /* --- FEEDBACK --- */
         .feedback-message {
             margin-top: 20px;
             font-size: 0.95rem;
@@ -189,13 +190,13 @@
         }
         .create-account-link:hover { opacity: 0.8; }
 
-     
+        /* --- ANIMATIONS --- */
         @keyframes floatUp {
             from { opacity: 0; transform: translateY(40px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-    
+        /* Shake animation for errors */
         .shake {
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
             border-color: var(--error-color) !important;
@@ -208,12 +209,12 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
 
-     
+        /* Spinner */
         .spinner {
             width: 20px;
             height: 20px;
             border: 3px solid rgba(15, 23, 42, 0.3);
-            border-top-color: #0f172a;
+            border-top-color: #0f172a; /* Dark color for contrast on button */
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             display: inline-block;
@@ -248,10 +249,9 @@
 
     const API_URL = 'https://cff-production.up.railway.app/api/v0.1/cf/user/';
 
-    
     btn.addEventListener('click', handleSearch);
     
-    
+    // Remove error shake effect when user starts typing
     input.addEventListener('input', () => {
         input.classList.remove('shake');
         feedback.style.opacity = '0';
@@ -269,7 +269,7 @@
             return;
         }
 
-      
+        // UI Loading State
         btn.disabled = true;
         btn.innerHTML = '<div class="spinner"></div> Checking...';
         feedback.style.opacity = '0';
@@ -279,25 +279,28 @@
             const response = await fetch(`${API_URL}${handle}`);
 
             if (response.ok) {
-               
+                // ✅ SUCCESS → Smooth fade out before redirect
                 document.querySelector('.container').style.transform = 'scale(0.95)';
                 document.querySelector('.container').style.opacity = '0';
                 
                 setTimeout(() => {
-                
-                    window.location.href = `main.html?handle=${handle}`;
+                    // NOTE: Assuming the previous file is named 'profile.html'. 
+                    // Adjust if your file is named 'frontpage.html' or something else.
+                    window.location.href = `frontpage.html?handle=${handle}`;
                 }, 300);
                 return;
             }
 
-
+            // ❌ ERROR HANDLING
+            
             const errorData = await response.json().catch(() => ({}));
+            console.log("the response is " + errorData.apiResponseCode);
             let errorMessage = "Connection failed. Please try again.";
 
             if (errorData?.message) errorMessage = errorData.message;
 
             if (errorData?.apiResponseCode === 4004) {
-                
+                // Specific "User Not Found" HTML message
                 feedback.innerHTML = `
                     <span class="error-text">User <strong>"${handle}"</strong> not found.</span><br>
                     <a href="https://codeforces.com/register" target="_blank" class="create-account-link">Create Account ON Codeforces →</a>
@@ -312,7 +315,7 @@
             console.error(error);
             triggerError("Network error. Is the server running?");
         } finally {
-          
+            // Reset Button (only if we didn't redirect)
             if (!document.querySelector('.container').style.opacity) {
                 btn.disabled = false;
                 btn.innerHTML = '<span>Analyze Profile</span> 🚀';
@@ -323,9 +326,9 @@
     function triggerError(msg) {
         feedback.innerHTML = `<span class="error-text">${msg}</span>`;
         feedback.style.opacity = '1';
-        input.classList.add('shake'); 
+        input.classList.add('shake'); // Adds the shaking animation
         
-      
+        // Re-enable button immediately for errors
         btn.disabled = false;
         btn.innerHTML = '<span>Analyze Profile</span> 🚀';
     }

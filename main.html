@@ -124,6 +124,14 @@
             background: #fff;
         }
 
+        /* --- NAV ACTIONS --- */
+        /* Added Flex layout here for better spacing of the new button */
+        .nav-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
         .nav-actions .nav-link-btn {
             text-decoration: none;
             color: var(--text-muted);
@@ -132,12 +140,23 @@
             border-radius: 8px;
             transition: var(--transition);
             border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .nav-actions .nav-link-btn:hover {
             color: var(--accent-primary);
             background: rgba(56, 189, 248, 0.1);
             border-color: rgba(56, 189, 248, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Highlight specifically the practice button slightly more */
+        .nav-link-btn.practice-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
         }
 
         /* --- MAIN LAYOUT --- */
@@ -385,14 +404,14 @@
 
         .hidden { display: none !important; }
 
- 
+        /* Rank Color Classes (Dynamic) */
         .rank-color-newbie { color: var(--rank-newbie); }
         .rank-color-pupil { color: var(--rank-pupil); }
         .rank-color-specialist { color: var(--rank-specialist); }
         .rank-color-expert { color: var(--rank-expert); }
         .rank-color-candidatemaster { color: var(--rank-cm); }
         .rank-color-master { color: var(--rank-master); }
-        .rank-color-internationalmaster { color: var(--rank-master); } /* Orange often same as master or slightly diff */
+        .rank-color-internationalmaster { color: var(--rank-master); } 
         .rank-color-grandmaster { color: var(--rank-gm); }
         .rank-color-internationalgrandmaster { color: var(--rank-gm); }
         .rank-color-legendarygrandmaster { color: var(--rank-lgm); }
@@ -407,9 +426,10 @@
         @media (max-width: 768px) {
             header { flex-direction: column; gap: 15px; padding: 20px; }
             .search-container { margin: 0; width: 100%; }
+            .nav-actions { width: 100%; justify-content: center; } /* Center nav items on mobile */
             .summary-content { flex-direction: column; text-align: center; }
             .actions-row { justify-content: center; flex-wrap: wrap; }
-          
+            /* Hide non-critical table columns on mobile */
             td:nth-child(4), th:nth-child(4), td:nth-child(6), th:nth-child(6) { display: none; }
         }
     </style>
@@ -427,6 +447,7 @@
         </div>
     
         <nav class="nav-actions">
+            <a href="practice.html" class="nav-link-btn practice-btn">Practice 🎯</a>
             <a href="contest.html" class="nav-link-btn">Contests</a>
         </nav>
     </header>
@@ -518,19 +539,16 @@
             const searchButton = document.getElementById('searchButton');
             const loading = document.getElementById('loading');
             
-      
             const errorDiv = document.getElementById('error-container'); 
 
-            
             const detailedSubmissionsBtn = document.getElementById('detailedSubmissionsBtn');
             const trackRatingBtn = document.getElementById('trackRatingBtn');
-
 
             const API_BASE_URL = 'https://cff-production.up.railway.app/api/v0.1/cf/user/';
 
             let currentHandle = '';
 
-
+      
 
             const setVisibility = (id, visible) => {
                 const el = document.getElementById(id);
@@ -549,7 +567,7 @@
             const saveHandle = (handle) => localStorage.setItem('lastCodeforcesHandle', handle);
             const getHandleFromUrl = () => new URLSearchParams(window.location.search).get('handle');
 
-         
+     
             const fetchWithCffError = async (url) => {
                 try {
                     const res = await fetch(url);
@@ -568,7 +586,6 @@
                 }
             };
 
-          
 
             const loadInitialProfile = () => {
                 const urlHandle = getHandleFromUrl();
@@ -589,7 +606,6 @@
 
                 currentHandle = handle;
 
-                // Reset UI
                 setVisibility('summarySection', false);
                 setVisibility('detailsSection', false);
                 setVisibility('submissionsSection', false);
@@ -624,8 +640,6 @@
             };
 
 
-
-         
             const showFancyError = (msg, handle) => {
                 let icon = '⚠️';
                 let title = 'Something went wrong';
@@ -654,7 +668,7 @@
                 const handleEl = document.getElementById('summaryHandle');
                 handleEl.textContent = data.handle;
                 
-             
+      
                 handleEl.className = `handle-title rank-color-${(data.rank || 'newbie').replace(/\s/g, '')}`;
 
                 const rankTag = document.getElementById('summaryRank');
@@ -687,7 +701,7 @@
                 subs.forEach(s => {
                     const row = tbody.insertRow();
                     const probName = `${s.problem.index} - ${s.problem.name}`;
-                    const shortLang = s.programmingLanguage.split(' ')[0]; // Simplify lang name
+                    const shortLang = s.programmingLanguage.split(' ')[0]; 
 
                     row.innerHTML = `
                         <td>
@@ -705,7 +719,7 @@
                 });
             };
 
-        
+           
             searchButton.addEventListener('click', () => searchProfile());
             handleInput.addEventListener('keypress', e => {
                 if (e.key === 'Enter') searchProfile();

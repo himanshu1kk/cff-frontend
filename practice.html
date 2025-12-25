@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice Deck | CFF Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent-primary: #38bdf8;
+            --accent-secondary: #818cf8; /* Indigo */
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --error-color: #f87171;
+            --success-color: #22c55e;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- BACKGROUND --- */
+        .background-matrix {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.1) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        /* --- LAYOUT --- */
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR (CONTROLS) --- */
+        aside {
+            width: 320px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--border-color);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .brand span { color: var(--accent-primary); }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Custom Select & Input */
+        select, input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+            width: 100%;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+
+        /* Rating Group */
+        .rating-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Search Button */
+        .btn-apply {
+            background: linear-gradient(135deg, var(--accent-primary), #2563eb);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-apply:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+        .btn-apply:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-msg {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            min-height: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: 600;
+        }
+
+        /* --- MAIN CONTENT (RESULTS) --- */
+        main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h2 { font-size: 2rem; font-weight: 300; }
+        h2 strong { font-weight: 700; color: var(--accent-primary); }
+
+        /* Problem Grid */
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding-bottom: 80px; /* Space for pagination */
+        }
+
+        /* Problem Card */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .problem-index {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .problem-rating {
+            font-weight: 700;
+            color: var(--accent-secondary);
+        }
+
+        .problem-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: auto; /* Push to bottom */
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-primary);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        /* --- PAGINATION --- */
+        .pagination {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 15px 40px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        /* Loading, Empty & Welcome States */
+        .state-message {
+            text-align: center;
+            padding: 60px;
+            width: 100%;
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .spinner-large {
+            width: 40px; height: 40px;
+            border: 4px solid rgba(56, 189, 248, 0.1);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        @media (max-width: 900px) {
+            .main-wrapper { flex-direction: column; height: auto; overflow: auto; }
+            aside { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); }
+            main { overflow: visible; }
+            .pagination { position: fixed; bottom: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-matrix"></div>
+
+    <div class="main-wrapper">
+        <aside>
+            <div class="brand" onclick="window.location.href='index.html'">
+                <span>&lt;/&gt;</span> CFF.Practice
+            </div>
+
+            <div class="control-group">
+                <label>Category / Tag</label>
+                <select id="tagSelect">
+                    <option value="">All Categories</option>
+                    
+                    <optgroup label="Core Algorithms">
+                        <option value="implementation">Implementation</option>
+                        <option value="math">Math</option>
+                        <option value="greedy">Greedy</option>
+                        <option value="dp">DP (Dynamic Programming)</option>
+                        <option value="binary search">Binary Search</option>
+                        <option value="two pointers">Two Pointers</option>
+                        <option value="brute force">Brute Force</option>
+                        <option value="constructive algorithms">Constructive Algorithms</option>
+                    </optgroup>
+
+                    <optgroup label="Data Structures">
+                        <option value="data structures">Data Structures</option>
+                        <option value="arrays">Arrays</option>
+                        <option value="strings">Strings</option>
+                        <option value="trees">Trees</option>
+                        <option value="graphs">Graphs</option>
+                        <option value="hashing">Hashing</option>
+                        <option value="heaps">Heaps</option>
+                        <option value="queues">Queues</option>
+                        <option value="stacks">Stacks</option>
+                        <option value="disjoint set union">DSU</option>
+                        <option value="segment tree">Segment Tree</option>
+                        <option value="fenwick tree">Fenwick Tree</option>
+                    </optgroup>
+
+                    <optgroup label="Graph Algorithms">
+                        <option value="dfs and similar">DFS and Similar</option>
+                        <option value="bfs">BFS</option>
+                        <option value="shortest paths">Shortest Paths</option>
+                        <option value="minimum spanning tree">MST</option>
+                        <option value="topological sort">Topological Sort</option>
+                        <option value="strongly connected components">SCC</option>
+                        <option value="flows">Flows</option>
+                    </optgroup>
+
+                    <optgroup label="Math / Theory">
+                        <option value="number theory">Number Theory</option>
+                        <option value="combinatorics">Combinatorics</option>
+                        <option value="probabilities">Probabilities</option>
+                        <option value="geometry">Geometry</option>
+                        <option value="bitmasks">Bitmasks</option>
+                        <option value="fft">FFT</option>
+                        <option value="games">Games</option>
+                    </optgroup>
+
+                    <optgroup label="Advanced / Special">
+                        <option value="interactive">Interactive</option>
+                        <option value="string suffix structures">Suffix Structures</option>
+                        <option value="meet-in-the-middle">Meet-in-the-middle</option>
+                        <option value="divide and conquer">Divide & Conquer</option>
+                        <option value="ternary search">Ternary Search</option>
+                        <option value="chinese remainder theorem">CRT</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Rating Range (800 - 5000)</label>
+                <div class="rating-row">
+                    <input type="number" id="minRating" placeholder="Min (800)" min="800" max="5000">
+                    <input type="number" id="maxRating" placeholder="Max (5000)" min="800" max="5000">
+                </div>
+                <div id="validationMsg" class="error-msg"></div>
+            </div>
+
+            <button class="btn-apply" id="applyBtn">INITIALIZE SEARCH</button>
+        </aside>
+
+        <main>
+            <div class="results-header">
+                <h2>System <strong>Results</strong></h2>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">
+                    Total: <span id="totalCount">0</span> problems
+                </div>
+            </div>
+
+            <div id="problemGrid" class="problem-grid">
+                </div>
+
+            <div class="pagination">
+                <button class="page-btn" id="prevPage" disabled>← Previous</button>
+                <span id="pageIndicator" style="font-size:0.9rem; color:var(--text-muted)">Page 1</span>
+                <button class="page-btn" id="nextPage" disabled>Next →</button>
+            </div>
+        </main>
+    </div>
+
+  <script>
+        // --- CONFIG ---
+        const API_URL = 'http://localhost:8080/api/v0.1/cf/problems';
+        let currentPage = 1;
+        const pageSize = 20;
+
+        // --- DOM ELEMENTS ---
+        const tagSelect = document.getElementById('tagSelect');
+        const minInput = document.getElementById('minRating');
+        const maxInput = document.getElementById('maxRating');
+        const applyBtn = document.getElementById('applyBtn');
+        const grid = document.getElementById('problemGrid');
+        const validationMsg = document.getElementById('validationMsg');
+        
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        const pageIndicator = document.getElementById('pageIndicator');
+        const totalCountSpan = document.getElementById('totalCount');
+
+        // --- EVENT LISTENERS ---
+        applyBtn.addEventListener('click', () => {
+            if (validateInputs()) {
+                currentPage = 1;
+                fetchProblems();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchProblems();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentPage++;
+            fetchProblems();
+        });
+
+        // Initialize on Load
+        renderWelcomeState();
+
+        // --- FUNCTIONS ---
+
+        function validateInputs() {
+            const minVal = minInput.value ? parseInt(minInput.value) : 0;
+            const maxVal = maxInput.value ? parseInt(maxInput.value) : 9999;
+
+            if (minInput.value && minVal < 800) {
+                showError("Minimum rating allowed is 800.");
+                return false;
+            }
+
+            if (maxInput.value && maxVal > 5000) {
+                showError("Maximum rating allowed is 5000.");
+                return false;
+            }
+
+            if (minInput.value && maxInput.value && minVal > maxVal) {
+                showError("Min rating cannot exceed Max rating.");
+                return false;
+            }
+            
+            showError(""); // Clear error
+            return true;
+        }
+
+        function showError(msg) {
+            validationMsg.textContent = msg;
+            validationMsg.style.opacity = msg ? '1' : '0';
+        }
+
+        function renderWelcomeState() {
+             grid.innerHTML = `
+                <div class="state-message">
+                    <h3 style="color: var(--accent-primary); font-size: 1.5rem; margin-bottom: 10px;">Ready to Practice?</h3>
+                    <p style="color: var(--text-muted); max-width: 400px; line-height: 1.6;">
+                        Please select a category and your desired difficulty range from the sidebar, then click 
+                        <strong style="color: var(--text-main)">Initialize Search</strong>.
+                    </p>
+                </div>
+            `;
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+            totalCountSpan.innerText = '0';
+        }
+
+        async function fetchProblems() {
+            // UI Loading State
+            grid.innerHTML = `
+                <div class="state-message">
+                    <div class="spinner-large"></div>
+                    <p style="color: var(--accent-primary)">Accessing Data Archives...</p>
+                </div>
+            `;
+            applyBtn.disabled = true;
+
+            // Build Query
+            // Use empty string fallback if tag is null/undefined
+            const tag = tagSelect.value || ""; 
+            const min = minInput.value;
+            const max = maxInput.value;
+
+            const params = new URLSearchParams({
+                page: currentPage,
+                pageSize: pageSize
+            });
+
+            // UPDATED: Always append 'tag', even if empty.
+            // This ensures the backend receives '&tag=' instead of missing the key.
+            params.append('tag', tag);
+
+            if (min) params.append('minRating', min);
+            if (max) params.append('maxRating', max);
+
+            try {
+                const res = await fetch(`${API_URL}?${params.toString()}`);
+                
+                if (!res.ok) {
+                    // Try to parse the error message from the backend JSON response
+                    let errorDetails = "Server communication failed.";
+                    try {
+                        const errorJson = await res.json();
+                        // Handle the specific RFC validation error format you showed
+                        if (errorJson.errors && errorJson.errors.tag) {
+                             errorDetails = `Backend Validation: ${errorJson.errors.tag[0]}`;
+                        } else if (errorJson.title) {
+                             errorDetails = errorJson.title;
+                        }
+                    } catch (e) { /* ignore JSON parse error */ }
+                    
+                    throw new Error(errorDetails);
+                }
+
+                const data = await res.json();
+                renderResults(data);
+
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = `
+                    <div class="state-message">
+                        <h3 style="color: var(--error-color); margin-bottom: 10px;">System Failure</h3>
+                        <p style="color: var(--text-muted)">${err.message}</p>
+                    </div>
+                `;
+            } finally {
+                applyBtn.disabled = false;
+            }
+        }
+
+        function renderResults(data) {
+            const { items, totalCount } = data;
+            
+            totalCountSpan.innerText = totalCount || 0;
+            pageIndicator.innerText = `Page ${currentPage}`;
+
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = (!items || items.length < pageSize);
+
+            if (!items || items.length === 0) {
+                grid.innerHTML = `
+                    <div class="state-message">
+                        <h3 style="color: var(--text-muted); margin-bottom: 10px;">Void Sector</h3>
+                        <p style="color: #64748b">No problems found matching these parameters.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = ''; 
+
+            items.forEach(problem => {
+                const card = document.createElement('a');
+                card.className = 'card';
+                card.target = '_blank';
+                card.href = `https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`;
+
+                let ratingColor = '#94a3b8'; 
+                if (problem.rating >= 2400) ratingColor = '#ef4444'; 
+                else if (problem.rating >= 2100) ratingColor = '#f59e0b'; 
+                else if (problem.rating >= 1900) ratingColor = '#a855f7'; 
+                else if (problem.rating >= 1600) ratingColor = '#3b82f6'; 
+                else if (problem.rating >= 1400) ratingColor = '#06b6d4'; 
+                else if (problem.rating >= 1200) ratingColor = '#22c55e'; 
+
+                const tagsHtml = problem.tags.slice(0, 3).map(t => 
+                    `<span class="tag">${t}</span>`
+                ).join('');
+
+                card.innerHTML = `
+                    <div class="card-top">
+                        <span class="problem-index">${problem.contestId}${problem.index}</span>
+                        <span class="problem-rating" style="color: ${ratingColor}">
+                            ${problem.rating ? problem.rating : 'N/A'}
+                        </span>
+                    </div>
+                    <div class="problem-name">${problem.name}</div>
+                    <div class="tags-container">
+                        ${tagsHtml}
+                        ${problem.tags.length > 3 ? '<span class="tag">...</span>' : ''}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
