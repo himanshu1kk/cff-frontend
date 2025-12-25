@@ -284,14 +284,12 @@
                 document.querySelector('.container').style.opacity = '0';
                 
                 setTimeout(() => {
-                    // NOTE: Assuming the previous file is named 'profile.html'. 
-                    // Adjust if your file is named 'frontpage.html' or something else.
-                    window.location.href = `frontpage.html?handle=${handle}`;
+                   
+                    window.location.href = `main.html?handle=${handle}`;
                 }, 300);
                 return;
             }
 
-            // ❌ ERROR HANDLING
             
             const errorData = await response.json().catch(() => ({}));
             console.log("the response is " + errorData.apiResponseCode);
